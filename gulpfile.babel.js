@@ -1,3 +1,5 @@
+// 걸프로 만드는 프론트엔드 워크플로우, 짱 좋음.
+
 import gulp from "gulp";
 import gpug from "gulp-pug"; // 이 모듈의 기능은 파이프에 연결되어 퍼그 파일을 HTML파일로서 변환시키는 것이다.
 import del from "del"; // 파일이나 폴더를 지우는 용도이다.
@@ -52,7 +54,8 @@ const routes = {
 const pugi = () =>
   gulp.src(routes.pug.src).pipe(gpug()).pipe(gulp.dest(routes.pug.dest));
 
-const clean = () => del(["build/"]);
+//아래의 태스크 후보는 배열안에 옵션으로 지정된 폴더를 지우는 모듈이다.
+const clean = () => del(["build/", ".publish/"]);
 
 const webServer = () => {
   return gulp.src("build").pipe(
@@ -111,7 +114,8 @@ export const build = gulp.series([prepare, assets]); // 이 태스크는 소스�
 
 export const dev = gulp.series([build, live]); //이 태스크는 파일을 만들고, 수정하고, 컴파일하고, 서버에 올려서, 감시
 
-export const deploy = gulp.series([build, upload]); // 이 태스크는 파일을 만들고, 수정, 컴파일후, 배포를 한다.
+export const deploy = gulp.series([build, upload, clean]);
+// 이 태스크는 파일을 만들고, 수정, 컴파일후, 배포를 한다. 그리고 배포가 완료 된후, 폴더들을 지운다.
 
 // export const test = gulp.series([style]);
 //사용하려는 태스크는 반드시 export 정의를 해야 한다. 그 이유는 무엇인가?
