@@ -16,6 +16,9 @@ import bro from "gulp-bro";
 import babelify from "babelify";
 import uglifyify from "uglifyify";
 
+//마지막으로 걸프를 이용해 깃허브의 gh-page에 배포하는 것이 가능하다. 놀랍다...
+import ghPages from "gulp-gh-pages";
+
 gulpSass.compiler = require("node-sass");
 // 위 코드는 최신식 자바스크립트로 바꿀수 없다. 정해져 있는 부분이니, 이렇게 사용해야 한다.
 // node-sass를 gulpsass의 컴파일러에 연결시키는 작업이다.
@@ -93,6 +96,8 @@ const js = () =>
     )
     .pipe(gulp.dest(routes.js.dest));
 
+const upload = () => gulp.src("build/**/*").pipe(ghPages());
+
 const prepare = gulp.series([clean, image, style, js]);
 // 이 태스크 후보는 먼저 파일들을 지우고, 이미지 파일을 옵티마이즈 한다음, css파일을 컴파일링 한다.
 
@@ -102,7 +107,11 @@ const live = gulp.series([webServer, watch]); // 웹서버를 실행하고 감�
 //왜인지는 모르겠지만 series()가 작동하지 않기 떼문에 parallel을 사용하였다.
 //했지만 원인은 pipe()를 사용하는 코드들에 return을 부여하니 잘 작동되기 시작했다....흠....
 
-export const dev = gulp.series([prepare, assets, live]);
+export const build = gulp.series([prepare, assets]); // 이 태스크는 소스로부터 파일을 만들고, 수정하고, 컴파일한다.
+
+export const dev = gulp.series([build, live]); //이 태스크는 파일을 만들고, 수정하고, 컴파일하고, 서버에 올려서, 감시
+
+export const deploy = gulp.series([build, upload]); // 이 태스크는 파일을 만들고, 수정, 컴파일후, 배포를 한다.
 
 // export const test = gulp.series([style]);
 //사용하려는 태스크는 반드시 export 정의를 해야 한다. 그 이유는 무엇인가?
